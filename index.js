@@ -1,38 +1,53 @@
-const contacts = require("./contacts");
-const { Command } = require('commander');
+const { Command } = require("commander");
+
+const {
+  listContacts,
+  getContactById,
+  removeContact,
+  addContact,
+} = require("./contacts.js");
 
 const program = new Command();
+
 program
-  .option('-a, --action <type>', 'choose action')
-  .option('-i, --id <type>', 'user id')
-  .option('-n, --name <type>', 'user name')
-  .option('-e, --email <type>', 'user email')
-  .option('-p, --phone <type>', 'user phone');
+  .option("-a, --action <type>", "choose action")
+  .option("-i, --id <type>", "user id")
+  .option("-n, --name <type>", "user name")
+  .option("-e, --email <type>", "user email")
+  .option("-p, --phone <type>", "user phone");
 
 program.parse(process.argv);
 
 const argv = program.opts();
 
-async function invokeAction({ action, id, name, email, phone }) {
+function invokeAction({ action, id, name, email, phone }) {
   switch (action) {
     case "list":
-      const allContacts = await contacts.listContacts();
-      console.table(allContacts);
+      listContacts().then((contacts) =>
+        console.log("Список контактів:", contacts)
+      );
       break;
+
     case "get":
-      const oneContact = await contacts.getContactById(id);
-      console.log(oneContact);
+      getContactById(id).then((contact) =>
+        console.log("Контакт по id:", contact)
+      );
       break;
+
     case "add":
-      const newContact = await contacts.addContact(name, email, phone);
-      console.log(newContact);
+      addContact(name, email, phone).then((contact) =>
+        console.log("Контакт додан:", contact)
+      );
       break;
+
     case "remove":
-      const removedContact = await contacts.removeContact(id);
-      console.log("Removed contact:", removedContact);
+      removeContact(id).then((contact) =>
+        console.log("Контакт видален:", contact)
+      );
       break;
+
     default:
-      console.log("Unknown action");
+      console.warn("\x1B[31m Unknown action type!");
   }
 }
 
